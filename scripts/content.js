@@ -116,6 +116,7 @@ async function getReccomendation() {
         } 
         
         // There is an issue with the below line as the cosineSimilarity is equal to 1 if the query is only one word.
+        // As a temportary fix I am using the productSum without dividing it by the square sums
         // cosineSimilarities[url] = cosineSimilarity;
         cosineSimilarities[url] = productSum; 
     }
