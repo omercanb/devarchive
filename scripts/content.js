@@ -1,27 +1,5 @@
-// const article = document.querySelector("article");
-
-// // `document.querySelector` may return null if the selector doesn't match anything.
-// if (article) {
-//     const text = article.textContent;
-//     const wordMatchRegExp = /[^\s]+/g; // Regular expression
-//     const words = text.matchAll(wordMatchRegExp);
-//     // matchAll returns an iterator, convert to array to get word count
-//     const wordCount = [...words].length;
-//     const readingTime = Math.round(wordCount / 200);
-//     const badge = document.createElement("p");
-//     // Use the same styling as the publish information in an article's header
-//     badge.classList.add("color-secondary-text", "type--caption");
-//     badge.textContent = `⏱️ ${readingTime} min read`;
-
-//     // Support for API reference docs
-//     const heading = article.querySelector("h1");
-//     // Support for article docs with date
-//     const date = article.querySelector("time")?.parentNode;
-
-//     (date ?? heading).insertAdjacentElement("afterend", badge);
-// }
-
-async function updateTfIdf(text, url)
+// WARNING: save_document.js has the exact same updateTfIdf copy and pasted. Make sure they are the same always.
+async function updateTfIdf(text, url) 
 {
     let storage = await chrome.storage.local.get(["documents", "corpusOccurances"]);
 
@@ -92,19 +70,10 @@ async function updateTfIdf(text, url)
     return storage;
 }
 
-async function setValue() {
-    await chrome.storage.local.set({ test: "something" });
-}
-
-async function getValue() {
-    let result = await chrome.storage.local.get(["test"]);
-    var div=document.createElement("div"); 
-    div.innerText="DevArchive: " + result.test;
-    searchResults = document.getElementById("rcnt")
-    searchResults.appendChild(div); 
-}
-
-async function setSearchQuery() {
+// This is very pointless as the query is already being accessed in 
+// getReccomendation but this function is used in showReccomendation()
+// Remove at first chance
+async function setSearchQuery() { 
     const urlObj = new URL(window.location.href);
     const params = new URLSearchParams(urlObj.search);
     const query = params.get('q');
@@ -146,8 +115,9 @@ async function getReccomendation() {
             cosineSimilarity = productSum / (Math.sqrt(querySquareSum) * Math.sqrt(documentSquareSum));
         } 
         
+        // There is an issue with the below line as the cosineSimilarity is equal to 1 if the query is only one word.
         // cosineSimilarities[url] = cosineSimilarity;
-        cosineSimilarities[url] = productSum;
+        cosineSimilarities[url] = productSum; 
     }
     let pairs = Object.entries(cosineSimilarities);
     pairs.sort((a, b) => b[1] - a[1]);
@@ -155,7 +125,6 @@ async function getReccomendation() {
     const sortedKeys = pairs.map(pair => pair[0]);
 
     return sortedKeys;
-
 }
 
 async function showReccomendation() {
