@@ -1,0 +1,29 @@
+/* CSS for the info box */
+.your-info-box-class {
+    border-radius: 8px; /* Rounded corners */
+    border: 1px solid #ccc; /* Border */
+    padding: 15px; /* Padding inside the box */
+    background-color: #ffffff; /* Light background color */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Box shadow for a subtle lift */
+    height: fit-content;
+
+    /* Title section at the top */
+    position: relative; /* Position relative for absolute positioning of title */
+}
+
+.your-info-box-class .info-title {
+    background-color: #007bff; /* Blue background for the title section */
+    color: #fff; /* White text color */
+    padding: 10px 15px; /* Padding for the title section */
+    border-top-left-radius: 8px; /* Rounded top-left corner */
+    border-top-right-radius: 8px; /* Rounded top-right corner */
+    margin: -15px -15px 15px -15px; /* Adjust margin to overlap border */
+
+    /* Ensure title text stands out */
+    font-weight: bold;
+}
+
+.your-info-box-class .info-content {
+    background-color: #e7f1fc; /* Light blue background for the content section */
+    padding: 15px; /* Padding for the content */
+}

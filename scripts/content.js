@@ -128,19 +128,70 @@ async function getReccomendation() {
     return sortedKeys;
 }
 
+async function placeReccomendationBoxInDiv(reccomendationBox) {
+    // If a google info box appears on the right, a new column with id rhs is created, it takes a short time to load
+    searchResults = document.getElementById("rcnt")
+
+    let rhsDiv = null;
+    for (let i = 0; i < 2; i++) {  // Try for a maximum of 10 times
+        rhsDiv = searchResults.querySelector('#rhs');
+        if (rhsDiv) {
+            break;
+        }
+        // console.log("rhsDiv not found, retrying...");
+        await new Promise(resolve => setTimeout(resolve, 500));  // Wait for 500ms before trying again
+    }
+    console.log(rhsDiv);
+    if (rhsDiv) {
+        rhsDiv.appendChild(reccomendationBox);
+        reccomendationBox.style.paddingLeft = '0';
+    } else {
+        searchResults.appendChild(reccomendationBox);
+        reccomendationBox.style.paddingLeft = '20px';
+    }
+}
+
+function createReccomendationBox(text) {
+    var infoBox = document.createElement('div');
+    infoBox.className = 'your-info-box-class';
+    infoBox.padding = '15px';
+
+    // Create title section
+    var titleSection = document.createElement('div');
+    // titleSection.className = 'info-title';
+    titleSection.textContent = 'DevArchive Suggestion';
+    infoBox.appendChild(titleSection);
+
+    // Add horizontal break
+    var hr = document.createElement('hr');
+    infoBox.appendChild(hr);
+
+    // Create content section
+    var contentSection = document.createElement('div');
+    // contentSection.className = 'info-content';
+    contentSection.innerHTML = text;
+    infoBox.appendChild(contentSection);
+    return infoBox;
+}
+
 async function showReccomendation() {
     let result = await chrome.storage.local.get(["title", "query"]);
     var div = document.createElement("div"); 
+    div.className = "devarchive-box";
     div.innerText="DevArchive: \n Last looked up: " + result.title + "\nSearch query: " + result.query;
-    searchResults = document.getElementById("rcnt")
-    searchResults.appendChild(div); 
+    
+    // await placeReccomendationBoxInDiv(div);
+
+
     let rankedReccomendations = await getReccomendation();
     console.log(rankedReccomendations);
     var text = ""
-    for (let i = 0; i < rankedReccomendations.length; i ++) {
-        text += rankedReccomendations[i].substring(8,70) + "\n"; 
+    for (let i = 0; (i < rankedReccomendations.length && i < 5); i ++) {
+        text += '<p>' + rankedReccomendations[i].substring(8,60) + '</p>' + "\n"; 
     }
-    console.log("HEI")
+
+    await placeReccomendationBoxInDiv(createReccomendationBox(text));
+
 
     console.log(text);
     div.innerText="DevArchive: \n Search query: " + result.query + "\nRanked matches: \n" + text;

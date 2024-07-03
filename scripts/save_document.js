@@ -1,4 +1,5 @@
-async function updateTfIdf(text, url)
+// WARNING: content.js has the exact same updateTfIdf copy and pasted. Make sure they are the same always.
+async function updateTfIdf(text, url) 
 {
     let storage = await chrome.storage.local.get(["documents", "corpusOccurances"]);
 
