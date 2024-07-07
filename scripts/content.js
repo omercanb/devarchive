@@ -34,7 +34,6 @@ async function updateTfIdf(text, url)
     }
 
 
-
     if (!alreadySaved) {
         for (let str in counts) {
             if (storage.corpusOccurances[str]) {
@@ -115,16 +114,12 @@ async function getReccomendation() {
             cosineSimilarity = productSum / (Math.sqrt(querySquareSum) * Math.sqrt(documentSquareSum));
         } 
         
-        // There is an issue with the below line as the cosineSimilarity is equal to 1 if the query is only one word.
-        // As a temportary fix I am using the productSum without dividing it by the square sums
-        // cosineSimilarities[url] = cosineSimilarity;
-        cosineSimilarities[url] = productSum; 
+        cosineSimilarities[url] = cosineSimilarity;
     }
     let pairs = Object.entries(cosineSimilarities);
     pairs.sort((a, b) => b[1] - a[1]);
-    console.log(pairs);
     const sortedKeys = pairs.map(pair => pair[0]);
-
+    console.log(sortedKeys);
     return sortedKeys;
 }
 
@@ -138,10 +133,8 @@ async function placeReccomendationBoxInDiv(reccomendationBox) {
         if (rhsDiv) {
             break;
         }
-        // console.log("rhsDiv not found, retrying...");
         await new Promise(resolve => setTimeout(resolve, 500));  // Wait for 500ms before trying again
     }
-    console.log(rhsDiv);
     if (rhsDiv) {
         rhsDiv.appendChild(reccomendationBox);
         reccomendationBox.style.paddingLeft = '0';
@@ -184,7 +177,6 @@ async function showReccomendation() {
 
 
     let rankedReccomendations = await getReccomendation();
-    console.log(rankedReccomendations);
     var text = ""
     for (let i = 0; (i < rankedReccomendations.length && i < 5); i ++) {
         text += '<p>' + rankedReccomendations[i].substring(8,60) + '</p>' + "\n"; 
@@ -193,7 +185,6 @@ async function showReccomendation() {
     await placeReccomendationBoxInDiv(createReccomendationBox(text));
 
 
-    console.log(text);
     div.innerText="DevArchive: \n Search query: " + result.query + "\nRanked matches: \n" + text;
 
 }
