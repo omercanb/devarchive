@@ -95,15 +95,11 @@ async function getReccomendation() {
         let documentSquareSum = 0;
 
         for (let word in storage.documents["query"]["tfIdf"]) {
-            let queryTfIdfWord = queryTfIdf[word];
             let documentTfIdfWord = documentTfIdf[word];
-            if (!queryTfIdfWord) {
-                queryTfIdfWord = 0;
-            }
             if (!documentTfIdfWord) {
                 documentTfIdfWord = 0;
             }
-
+            
             productSum += queryTfIdfWord * documentTfIdfWord;
             querySquareSum += queryTfIdfWord * queryTfIdfWord
             documentSquareSum += documentTfIdfWord * documentTfIdfWord;
@@ -116,10 +112,12 @@ async function getReccomendation() {
         
         cosineSimilarities[url] = cosineSimilarity;
     }
+    console.log(cosineSimilarities);
     let pairs = Object.entries(cosineSimilarities);
     pairs.sort((a, b) => b[1] - a[1]);
     const sortedKeys = pairs.map(pair => pair[0]);
-    console.log(sortedKeys);
+    // console.log(sortedKeys);
+    
     return sortedKeys;
 }
 

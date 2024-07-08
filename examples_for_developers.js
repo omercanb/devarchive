@@ -19,7 +19,7 @@ function getCosineSimilarity() {
         aSquareSum += a[i] * a[i];
         bSquareSum += b[i] * b[i];
     }
-    let cosineSimilarity = productSum / Math.sqrt(aSquareSum + bSquareSum)
+    let cosineSimilarity = productSum / (Math.sqrt(aSquareSum) * Math.sqrt(bSquareSum))
     return cosineSimilarity;
 }
 
