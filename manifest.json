@@ -13,7 +13,8 @@
   [
     "storage",
     "scripting",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "tabs"
   ],
   "host_permissions": ["https://*/*"],
   "background": {
@@ -29,6 +30,10 @@
       "matches": [
         "https://www.google.com/search*"
       ]
+    },
+    {
+      "js": ["scripts/color.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
