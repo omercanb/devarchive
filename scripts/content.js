@@ -146,12 +146,15 @@ async function placeReccomendationBoxInDiv(reccomendationBox) {
     }
     if (rhsDiv) {
         rhsDiv.appendChild(reccomendationBox);
-        reccomendationBox.style.paddingLeft = '0';
     } else {
-        searchResults.appendChild(reccomendationBox);
-        reccomendationBox.style.paddingLeft = '20px';
+        let newRhsDiv = document.createElement('div');
+        newRhsDiv.id = 'rhs';
+        searchResults.appendChild(newRhsDiv);
+        newRhsDiv.appendChild(reccomendationBox);
     }
 }
+
+
 
 function createReccomendationBox(text) {
     var infoBox = document.createElement('div');
@@ -191,7 +194,7 @@ async function showReccomendation() {
     var text = ""
     for (let i = 0; (i < rankedReccomendations.length && i < 5); i ++) {
         let recommendedUrl = rankedReccomendations[i];
-        text += '<p><a href="' + recommendedUrl + '">' + recommendedUrl.substring(8,60) + '</a></p>' + "\n"; 
+        text += '<p><a href="' + recommendedUrl + '">' + recommendedUrl + '</a></p>' + "\n"; 
     }
 
     await placeReccomendationBoxInDiv(createReccomendationBox(text));
