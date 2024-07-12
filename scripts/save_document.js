@@ -69,61 +69,6 @@ async function updateTfIdf(text, url)
     return storage;
 }
 
-// This is very pointless as the query is already being accessed in 
-// getReccomendation but this function is used in showReccomendation()
-// Remove at first chance
-async function setSearchQuery() { 
-    const urlObj = new URL(window.location.href);
-    const params = new URLSearchParams(urlObj.search);
-    const query = params.get('q');
-    await chrome.storage.local.set({ query: query});
-}
-
-async function getReccomendation() {
-    let urlObj = new URL(window.location.href);
-    let params = new URLSearchParams(urlObj.search);
-    let query = params.get('q');
-    let storage = await updateTfIdf(query, "query");
-
-    let cosineSimilarities = {};
-    let queryTfIdf = storage.documents["query"]["tfIdf"];
-    
-    for (let url in storage.documents) {
-        let documentTfIdf = storage.documents[url]["tfIdf"];
-        let productSum = 0;
-        let querySquareSum = 0;
-        let documentSquareSum = 0;
-
-        for (let word in storage.documents["query"]["tfIdf"]) {
-            // let queryTfIdfWord = queryTfIdf[word];
-            let documentTfIdfWord = documentTfIdf[word];
-            // if (!queryTfIdfWord) {
-            //     queryTfIdfWord = 0;
-            // }
-            if (!documentTfIdfWord) {
-                documentTfIdfWord = 0;
-            }
-            
-            productSum += queryTfIdfWord * documentTfIdfWord;
-            querySquareSum += queryTfIdfWord * queryTfIdfWord
-            documentSquareSum += documentTfIdfWord * documentTfIdfWord;
-        }
-
-        let cosineSimilarity = 0;
-        if (querySquareSum != 0 && documentSquareSum != 0){
-            cosineSimilarity = productSum / (Math.sqrt(querySquareSum) * Math.sqrt(documentSquareSum));
-        } 
-        
-        cosineSimilarities[url] = cosineSimilarity;
-    }
-    console.log(cosineSimilarities);
-    let pairs = Object.entries(cosineSimilarities);
-    pairs.sort((a, b) => b[1] - a[1]);
-    const sortedKeys = pairs.map(pair => pair[0]);
-    // console.log(sortedKeys);
-    return sortedKeys;
-}
-
 chrome.storage.local.set({ title: document.title });
 updateTfIdf(document.body.innerText, window.location.href)
 
