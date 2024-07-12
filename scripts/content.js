@@ -188,6 +188,11 @@ async function showReccomendation() {
 
 }
 
+chrome.action.setBadgeBackgroundColor({
+    'color': 'gray',
+    'tabId': tab.id
+});
+
 
 setSearchQuery();
 showReccomendation();
