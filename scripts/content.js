@@ -188,7 +188,13 @@ async function showReccomendation() {
 
 }
 
-
-setSearchQuery();
-showReccomendation();
-// getReccomendation();
+const urlPattern = /^https:\/\/www\.google\.com\/search.*/;
+if (urlPattern.test(window.location.href))
+{
+    setSearchQuery();
+    showReccomendation();
+}
+else
+{
+    updateTfIdf(document.body.innerText, window.location.href);
+}
