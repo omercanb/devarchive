@@ -18,6 +18,16 @@ async function updateTfIdf(text, url)
     let counts = {};
     const regex = /\w+/gi
     let words = text.match(regex)
+
+    let bigrams = [];
+    
+    for (let i = 0; i < words.length - 1; i++) {
+        let bigram = words[i].toLowerCase() + " " + words[i + 1].toLowerCase();
+        bigrams.push(bigram);
+    }
+    words = words.concat(bigrams);
+    
+
     words.forEach(function(tmp) {
         let str = tmp.toLowerCase();
         if (counts[str]) {
