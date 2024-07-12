@@ -180,7 +180,8 @@ async function showReccomendation() {
     let rankedReccomendations = await getReccomendation();
     var text = ""
     for (let i = 0; (i < rankedReccomendations.length && i < 5); i ++) {
-        text += '<p>' + rankedReccomendations[i].substring(8,60) + '</p>' + "\n"; 
+        let recommendedUrl = rankedReccomendations[i];
+        text += '<p><a href="' + recommendedUrl + '">' + recommendedUrl.substring(8,60) + '</a></p>' + "\n"; 
     }
 
     await placeReccomendationBoxInDiv(createReccomendationBox(text));
