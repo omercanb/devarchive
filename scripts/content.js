@@ -167,10 +167,12 @@ function createReccomendationBox(text) {
 }
 
 async function showReccomendation() {
-    let result = await chrome.storage.local.get(["title", "query"]);
+    const urlObj = new URL(window.location.href);
+    const params = new URLSearchParams(urlObj.search);
+    const query = params.get('q');
+
     var div = document.createElement("div"); 
     div.className = "devarchive-box";
-    div.innerText="DevArchive: \n Last looked up: " + result.title + "\nSearch query: " + result.query;
     
     // await placeReccomendationBoxInDiv(div);
 
@@ -184,14 +186,12 @@ async function showReccomendation() {
     await placeReccomendationBoxInDiv(createReccomendationBox(text));
 
 
-    div.innerText="DevArchive: \n Search query: " + result.query + "\nRanked matches: \n" + text;
+    div.innerText="DevArchive: \n Search query: " + query + "\nRanked matches: \n" + text;
 
 }
-
-const urlPattern = /^https:\/\/www\.google\.com\/search.*/;
-if (urlPattern.test(window.location.href))
+// urlpattern = /^https:\/\/www\.google\.com\/search.*/
+if (/^https:\/\/www\.google\.com\/search.*/.test(window.location.href))
 {
-    setSearchQuery();
     showReccomendation();
 }
 else
