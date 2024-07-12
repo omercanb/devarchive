@@ -123,7 +123,6 @@ async function getReccomendation() {
         
         cosineSimilarities[url] = cosineSimilarity;
     }
-    console.log(cosineSimilarities);
     let pairs = Object.entries(cosineSimilarities);
     pairs.sort((a, b) => b[1] - a[1]);
     const sortedKeys = pairs.map(pair => pair[0]);
@@ -157,8 +156,14 @@ async function placeReccomendationBoxInDiv(reccomendationBox) {
 
 
 function createReccomendationBox(text) {
+
+    let existing_box = document.getElementById('archive-recommendation');
+    if (existing_box != null) { 
+        return null;
+    }
     var infoBox = document.createElement('div');
     infoBox.className = 'your-info-box-class';
+    infoBox.id = 'archive-recommendation'
     infoBox.padding = '15px';
 
     // Create title section
@@ -180,12 +185,14 @@ function createReccomendationBox(text) {
 }
 
 async function showReccomendation() {
-    const urlObj = new URL(window.location.href);
-    const params = new URLSearchParams(urlObj.search);
-    const query = params.get('q');
 
-    var div = document.createElement("div"); 
-    div.className = "devarchive-box";
+
+    // let recommendation_box = document.createElement("div"); 
+    // recommendation_box.className = "archive-recommendation";
+    // let existing_box = document.getElementsByClassName(recommendation_box.className);
+
+
+
     
     // await placeReccomendationBoxInDiv(div);
 
@@ -197,11 +204,13 @@ async function showReccomendation() {
         text += '<p><a href="' + recommendedUrl + '">' + recommendedUrl + '</a></p>' + "\n"; 
     }
 
-    await placeReccomendationBoxInDiv(createReccomendationBox(text));
+    let recommendation_box = createReccomendationBox(text);
 
+    if (recommendation_box == null) {
+        return;
+    }
 
-    div.innerText="DevArchive: \n Search query: " + query + "\nRanked matches: \n" + text;
-
+    await placeReccomendationBoxInDiv(recommendation_box);
 }
 // urlpattern = /^https:\/\/www\.google\.com\/search.*/
 if (/^https:\/\/www\.google\.com\/search.*/.test(window.location.href))
