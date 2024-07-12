@@ -99,6 +99,7 @@ async function getReccomendation() {
             if (!documentTfIdfWord) {
                 documentTfIdfWord = 0;
             }
+            let queryTfIdfWord = queryTfIdf[word]
             
             productSum += queryTfIdfWord * documentTfIdfWord;
             querySquareSum += queryTfIdfWord * queryTfIdfWord
