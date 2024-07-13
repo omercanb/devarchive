@@ -8,13 +8,6 @@ async function updateTfIdf(text, url)
         storage.corpusOccurances = {};
     }
 
-    let alreadySaved = false;
-    if (storage.documents[url]) {
-        alreadySaved = true;
-    }
-    
-    storage.documents[url] = {};
-
     let counts = {};
     const regex = /\w+/gi
     let words = text.match(regex)
@@ -26,7 +19,6 @@ async function updateTfIdf(text, url)
         bigrams.push(bigram);
     }
     words = words.concat(bigrams);
-    
 
     words.forEach(function(tmp) {
         let str = tmp.toLowerCase();
@@ -37,6 +29,24 @@ async function updateTfIdf(text, url)
         }
     });
 
+    let removeSavedUrl = false;
+    if (url.localeCompare('query') != 0 && storage.documents[url]) {
+        removeSavedUrl = true;
+        delete storage.documents[url];
+        for (let word in counts) {
+            storage.corpusOccurances[word]--;
+        }
+        for (let word in storage.corpusOccurances) {
+            if (storage.corpusOccurances[word] === 0) {
+                delete storage.corpusOccurances[word];
+            }
+        }
+        await chrome.storage.local.set({documents:storage.documents, corpusOccurances:storage.corpusOccurances});
+        return;
+    }
+
+    storage.documents[url] = {};
+
     let wordCount = words.length;
     storage.documents[url]["tf"] = {};
     for (let str in counts){
@@ -44,15 +54,14 @@ async function updateTfIdf(text, url)
     }
 
 
-    if (!alreadySaved) {
-        for (let str in counts) {
-            if (storage.corpusOccurances[str]) {
-                storage.corpusOccurances[str]++;
-            } else {
-                storage.corpusOccurances[str] = 1;
-            }
-        };
-    }
+    for (let str in counts) {
+        if (storage.corpusOccurances[str]) {
+            storage.corpusOccurances[str]++;
+        } else {
+            storage.corpusOccurances[str] = 1;
+        }
+    };
+
 
     let corpusSize = Object.keys(storage.documents).length + 1; // Count including current document
     for (let savedUrl in storage.documents) {
@@ -60,7 +69,7 @@ async function updateTfIdf(text, url)
             storage.documents[savedUrl]["idf"] = {};
         }
         for (let str in counts) {
-            storage.documents[savedUrl]["idf"][str] = Math.log(corpusSize / (1 + storage.corpusOccurances[str]));
+            storage.documents[savedUrl]["idf"][str] = Math.log(corpusSize / (storage.corpusOccurances[str]));
         };
     }
 
@@ -94,6 +103,13 @@ async function getReccomendation() {
     let params = new URLSearchParams(urlObj.search);
     let query = params.get('q');
     let storage = await updateTfIdf(query, "query");
+    console.log(storage);
+    for (let url in storage.documents) {
+        console.log(url);
+        console.log(storage.documents[url]['idf']['function'])
+        console.log(storage.documents[url]['tf']['function'])
+        console.log(storage.documents[url]['tfIdf']['function'])
+    }
 
     let cosineSimilarities = {};
     let queryTfIdf = storage.documents["query"]["tfIdf"];
@@ -109,24 +125,26 @@ async function getReccomendation() {
             if (!documentTfIdfWord) {
                 documentTfIdfWord = 0;
             }
-            let queryTfIdfWord = queryTfIdf[word]
+            let queryTfIdfWord = queryTfIdf[word];
             
             productSum += queryTfIdfWord * documentTfIdfWord;
-            querySquareSum += queryTfIdfWord * queryTfIdfWord
+            querySquareSum += queryTfIdfWord * queryTfIdfWord;
             documentSquareSum += documentTfIdfWord * documentTfIdfWord;
         }
 
         let cosineSimilarity = 0;
         if (querySquareSum != 0 && documentSquareSum != 0){
-            cosineSimilarity = productSum / (Math.sqrt(querySquareSum) * Math.sqrt(documentSquareSum));
+            cosineSimilarity = (productSum + 0.00000001) / (Math.sqrt(querySquareSum + 0.0001) * Math.sqrt(documentSquareSum + 0.0001));
         } 
-        
+        console.log(url);
+        console.log(productSum);
+        console.log(querySquareSum, documentSquareSum);
         cosineSimilarities[url] = cosineSimilarity;
     }
+    console.log(cosineSimilarities);
     let pairs = Object.entries(cosineSimilarities);
     pairs.sort((a, b) => b[1] - a[1]);
     const sortedKeys = pairs.map(pair => pair[0]);
-    // console.log(sortedKeys);
     
     return sortedKeys;
 }
