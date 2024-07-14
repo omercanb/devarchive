@@ -47,6 +47,17 @@ async function updateTfIdf(text, url)
 
     storage.documents[url] = {};
 
+    let selectedText = window.getSelection().toString();
+    storage.documents[url]["st"] = null;
+    if (selectedText)
+    {
+        storage.documents[url]["st"] = selectedText;
+    }
+    else
+    {
+        storage.documents[url]["st"] = "";
+    }
+
     let wordCount = words.length;
     storage.documents[url]["tf"] = {};
     for (let str in counts){
@@ -145,8 +156,16 @@ async function getReccomendation() {
     let pairs = Object.entries(cosineSimilarities);
     pairs.sort((a, b) => b[1] - a[1]);
     const sortedKeys = pairs.map(pair => pair[0]);
+
+    let sortedKeysAndHighlightedTexts = {};
+    for (let i = 0; i < sortedKeys.length; i++)
+    {
+        let url = sortedKeys[i];
+        let hlText = storage.documents
+        sortedKeysAndHighlightedTexts[url] = storage.documents[url]["st"];
+    }
     
-    return sortedKeys;
+    return sortedKeysAndHighlightedTexts;
 }
 
 async function placeReccomendationBoxInDiv(reccomendationBox) {
@@ -217,10 +236,23 @@ async function showReccomendation() {
 
     let rankedReccomendations = await getReccomendation();
     var text = ""
-    for (let i = 0; (i < rankedReccomendations.length && i < 5); i ++) {
-        let recommendedUrl = rankedReccomendations[i];
-        text += '<p><a href="' + recommendedUrl + '">' + recommendedUrl + '</a></p>' + "\n"; 
-    }
+
+    const entries = Object.entries (rankedReccomendations);
+    const firstFive = entries.slice (0,5);
+
+    firstFive.forEach (([recommendedUrl, highlightedText]) => {
+        
+        text += '<p><a href="' + recommendedUrl + '">' + recommendedUrl;
+
+        if (highlightedText)
+        {
+            text += "- Highlighted text: " + highlightedText;
+        }
+
+        text += '</a></p>' + "\n";
+
+        console.log(recommendedUrl + " text: " + highlightedText);
+    });
 
     let recommendation_box = createReccomendationBox(text);
 
