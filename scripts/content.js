@@ -185,6 +185,9 @@ async function getReccomendation() {
     pairs.sort((a, b) => b[1] - a[1]);
     const sortedKeys = pairs.map(pair => pair[0]);
 
+    sortedKeys.splice(sortedKeys.indexOf("query"), 1);
+    
+
     let sortedKeysAndHighlightedTexts = {};
     for (let i = 0; i < sortedKeys.length; i++)
     {

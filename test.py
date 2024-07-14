@@ -1,7 +1,6 @@
-d = None
+d = {'urfa': False,
+    "test": 'hello',
+    "best_dictionary": {'konya': False}}
 
 
-if d:
-    print('hi')
-else:
-    print('ho')
+print(d['best_dictionary']['konya'])
