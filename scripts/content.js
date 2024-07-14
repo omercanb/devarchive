@@ -29,6 +29,7 @@ async function updateTfIdf(text, url)
         }
     });
 
+    // Delete saved document
     let removeSavedUrl = false;
     if (url.localeCompare('query') != 0 && storage.documents[url]) {
         removeSavedUrl = true;
@@ -41,6 +42,26 @@ async function updateTfIdf(text, url)
                 delete storage.corpusOccurances[word];
             }
         }
+
+        // let corpusSize = Object.keys(storage.documents).length;
+        // for (let savedUrl in storage.documents) {
+        //     if (!storage.documents[savedUrl]["idf"]){
+        //         storage.documents[savedUrl]["idf"] = {};
+        //     }
+        //     for (let str in counts) {
+        //         storage.documents[savedUrl]["idf"][str] = Math.log(corpusSize / (storage.corpusOccurances[str]));
+        //     };
+        // }
+    
+    
+        // for (let savedUrl in storage.documents) {
+        //     if (!storage.documents[savedUrl]["tfIdf"]){
+        //         storage.documents[savedUrl]["tfIdf"] = {};
+        //     }
+        //     for (let str in counts) {
+        //         storage.documents[savedUrl]["tfIdf"][str] = storage.documents[savedUrl]["tf"][str] * storage.documents[savedUrl]["idf"][str];
+        //     };
+        // }
         await chrome.storage.local.set({documents:storage.documents, corpusOccurances:storage.corpusOccurances});
         return;
     }
@@ -64,35 +85,52 @@ async function updateTfIdf(text, url)
         storage.documents[url]["tf"][str] = counts[str] / wordCount;
     }
 
+    let savingQuery = url.localeCompare('query') == 0;
 
-    for (let str in counts) {
-        if (storage.corpusOccurances[str]) {
-            storage.corpusOccurances[str]++;
-        } else {
-            storage.corpusOccurances[str] = 1;
+
+    if (!savingQuery) {
+        for (let str in counts) {
+            if (storage.corpusOccurances[str]) {
+                storage.corpusOccurances[str]++;
+            } else {
+                storage.corpusOccurances[str] = 1;
+            }
+        };
+    }
+
+
+    let documentsToIterate = storage.documents;
+    if (savingQuery) {
+        documentsToIterate = [storage.documents['query']]
+    }
+
+    let corpusSize = Object.keys(storage.documents).length + 1; // When one document is saved, all idf scores are 0 normally, +1 prevents this
+    for (let savedUrl in documentsToIterate) {
+        if (!documentsToIterate[savedUrl]["idf"]){
+            documentsToIterate[savedUrl]["idf"] = {};
         }
+        for (let str in counts) {
+            documentsToIterate[savedUrl]["idf"][str] = Math.log(corpusSize / (storage.corpusOccurances[str]));
+        };
+    };
+    for (let savedUrl in documentsToIterate) {
+        if (!documentsToIterate[savedUrl]["tfIdf"]){
+            documentsToIterate[savedUrl]["tfIdf"] = {};
+        }
+        for (let str in counts) {
+            documentsToIterate[savedUrl]["tfIdf"][str] = documentsToIterate[savedUrl]["tf"][str] * documentsToIterate[savedUrl]["idf"][str];
+        };
     };
 
-
-    let corpusSize = Object.keys(storage.documents).length + 1; // Count including current document
-    for (let savedUrl in storage.documents) {
-        if (!storage.documents[savedUrl]["idf"]){
-            storage.documents[savedUrl]["idf"] = {};
-        }
-        for (let str in counts) {
-            storage.documents[savedUrl]["idf"][str] = Math.log(corpusSize / (storage.corpusOccurances[str]));
-        };
+    console.log(storage.documents['query']);
+    for (let url in storage.documents) {
+        console.log(url);
+        console.log(storage.documents[url]['idf']['function']);
     }
+    console.log(storage.documents);
 
 
-    for (let savedUrl in storage.documents) {
-        if (!storage.documents[savedUrl]["tfIdf"]){
-            storage.documents[savedUrl]["tfIdf"] = {};
-        }
-        for (let str in counts) {
-            storage.documents[savedUrl]["tfIdf"][str] = storage.documents[savedUrl]["tf"][str] * storage.documents[savedUrl]["idf"][str];
-        };
-    }
+    
 
     await chrome.storage.local.set({documents:storage.documents, corpusOccurances:storage.corpusOccurances});
 
@@ -114,14 +152,7 @@ async function getReccomendation() {
     let params = new URLSearchParams(urlObj.search);
     let query = params.get('q');
     let storage = await updateTfIdf(query, "query");
-    console.log(storage);
-    for (let url in storage.documents) {
-        console.log(url);
-        console.log(storage.documents[url]['idf']['function'])
-        console.log(storage.documents[url]['tf']['function'])
-        console.log(storage.documents[url]['tfIdf']['function'])
-    }
-
+    
     let cosineSimilarities = {};
     let queryTfIdf = storage.documents["query"]["tfIdf"];
     
@@ -147,9 +178,6 @@ async function getReccomendation() {
         if (querySquareSum != 0 && documentSquareSum != 0){
             cosineSimilarity = (productSum + 0.00000001) / (Math.sqrt(querySquareSum + 0.0001) * Math.sqrt(documentSquareSum + 0.0001));
         } 
-        console.log(url);
-        console.log(productSum);
-        console.log(querySquareSum, documentSquareSum);
         cosineSimilarities[url] = cosineSimilarity;
     }
     console.log(cosineSimilarities);
@@ -164,7 +192,6 @@ async function getReccomendation() {
         let hlText = storage.documents
         sortedKeysAndHighlightedTexts[url] = storage.documents[url]["st"];
     }
-    
     return sortedKeysAndHighlightedTexts;
 }
 
@@ -222,18 +249,6 @@ function createReccomendationBox(text) {
 }
 
 async function showReccomendation() {
-
-
-    // let recommendation_box = document.createElement("div"); 
-    // recommendation_box.className = "archive-recommendation";
-    // let existing_box = document.getElementsByClassName(recommendation_box.className);
-
-
-
-    
-    // await placeReccomendationBoxInDiv(div);
-
-
     let rankedReccomendations = await getReccomendation();
     var text = ""
 
