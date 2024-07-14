@@ -260,14 +260,14 @@ async function showReccomendation() {
 
     firstFive.forEach (([recommendedUrl, highlightedText]) => {
         
-        text += '<p><a href="' + recommendedUrl + '">' + recommendedUrl;
+        text += '<p><a href="' + recommendedUrl + '">' + recommendedUrl + "</a></p><p>";
 
         if (highlightedText)
         {
             text += "- Highlighted text: " + highlightedText;
         }
 
-        text += '</a></p>' + "\n";
+        text += '</p>' + "\n";
 
         console.log(recommendedUrl + " text: " + highlightedText);
     });
