@@ -1,17 +1,7 @@
 let urls = []
 
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-        id: "saveURLAndText",
-        title: "Save this tab with the selected text to DevArchive",
-        contexts: ["selection"]
-    });
-
-    chrome.contextMenus.create({
-        id: "saveURL",
-        title: "Save this tab to DevArchive",
-        contexts: ["page", "frame", "link", "editable", "image", "video", "audio"]
-    });
+    updateContextMenu();
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -26,7 +16,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             executeExtension(tab);
         }
     }
-    else if (info.menuItemId === "saveURL")
+    else if (info.menuItemId === "saveURL" || info.menuItemId === "removeURL")
     {
         executeExtension(tab);
     }
@@ -34,6 +24,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.storage.onChanged.addListener((changes, area) => {
     urls = Object.keys(changes.documents.newValue);
+    updateContextMenu();
     updateBadge();
 })
 
@@ -41,12 +32,54 @@ chrome.action.onClicked.addListener((tab) => {
     executeExtension(tab);
 });
 
+function updateContextMenu() 
+{
+    chrome.tabs.query(
+        {currentWindow: true, active : true},
+        function(tabArray) 
+        {
+            let activeTab = tabArray[0];
+            let url = activeTab.url;
+            
+            chrome.contextMenus.removeAll(() => {
+                if (/^https:\/\/www\.google\.com\/search.*/.test(url))
+                {
+                    return;
+                }
+                else if (urls.includes(url))
+                {
+                    chrome.contextMenus.create({
+                        id: "removeURL",
+                        title: "Remove this tab from DevArchive",
+                        contexts: ["all"]
+                    });
+                }
+                else
+                {
+                    chrome.contextMenus.create({
+                        id: "saveURLAndText",
+                        title: "Save this tab with the selected text to DevArchive",
+                        contexts: ["selection"]
+                    });
+                
+                    chrome.contextMenus.create({
+                        id: "saveURL",
+                        title: "Save this tab to DevArchive",
+                        contexts: ["page", "frame", "link", "editable", "image", "video", "audio"]
+                    });
+                }
+            });
+        }
+    );
+}
+
 function executeExtension(tab)
 {
     chrome.scripting.executeScript({
         target: {tabId: tab.id},
         files: ['scripts/content.js'],
     });
+    updateContextMenu();
     updateBadge();
     console.log(urls);
 }
@@ -88,8 +121,15 @@ function updateBadge() {
     )
 }
 
-chrome.tabs.onActivated.addListener(updateBadge);
-chrome.tabs.onUpdated.addListener(updateBadge);
+chrome.tabs.onActivated.addListener(() => {
+    updateContextMenu();
+    updateBadge();
+});
+
+chrome.tabs.onUpdated.addListener(() => {
+    updateContextMenu();
+    updateBadge();
+});
 // chrome.action.setBadgeBackgroundColor({ color: '#00FF00' });
 // chrome.action.setBadgeText({'text':"hi"});
 // let storage = chrome.storage.local.get(["documents"]);
