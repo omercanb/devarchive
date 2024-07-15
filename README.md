@@ -3,4 +3,5 @@ This Chrome extension for the Amazon Mentorship Program helps developers who fre
 
 Getting Up to Speed for developers
 Chrome Extensions tutorial https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world
+
 Chrome Storage tutorial https://developer.chrome.com/docs/extensions/reference/api/storage
