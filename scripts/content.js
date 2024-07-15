@@ -253,7 +253,7 @@ function createReccomendationBox(text) {
 
 async function showReccomendation() {
     let rankedReccomendations = await getReccomendation();
-    var text = ""
+    var text = "";
 
     const entries = Object.entries (rankedReccomendations);
     const firstFive = entries.slice (0,5);
@@ -272,7 +272,11 @@ async function showReccomendation() {
         console.log(recommendedUrl + " text: " + highlightedText);
     });
 
-    let recommendation_box = createReccomendationBox(text);
+    let recommendation_box = null;
+    if (text !== "")
+    {
+        recommendation_box = createReccomendationBox(text);
+    }
 
     if (recommendation_box == null) {
         return;
