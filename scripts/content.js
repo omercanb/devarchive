@@ -68,15 +68,16 @@ async function updateTfIdf(text, url)
 
     storage.documents[url] = {};
 
-    let selectedText = window.getSelection().toString();
-    storage.documents[url]["st"] = null;
-    if (selectedText)
+    let savedTextStorage = await chrome.storage.local.get(["savedText"]);
+    if (savedTextStorage.savedText)
     {
-        storage.documents[url]["st"] = selectedText;
+        storage.documents[url]["st"] = savedTextStorage.savedText;
+        savedTextStorage.savedText = null;
+        await chrome.storage.local.set({ savedText: savedTextStorage.savedText });
     }
     else
     {
-        storage.documents[url]["st"] = "";
+        storage.documents[url]["st"] = null;
     }
 
     let wordCount = words.length;
@@ -192,7 +193,6 @@ async function getReccomendation() {
     for (let i = 0; i < sortedKeys.length; i++)
     {
         let url = sortedKeys[i];
-        let hlText = storage.documents
         sortedKeysAndHighlightedTexts[url] = storage.documents[url]["st"];
     }
     return sortedKeysAndHighlightedTexts;

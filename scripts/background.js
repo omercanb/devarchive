@@ -1,18 +1,55 @@
 let urls = []
 
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        id: "saveURLAndText",
+        title: "Save this tab with the selected text to DevArchive",
+        contexts: ["selection"]
+    });
+
+    chrome.contextMenus.create({
+        id: "saveURL",
+        title: "Save this tab to DevArchive",
+        contexts: ["page", "frame", "link", "editable", "image", "video", "audio"]
+    });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === "saveURLAndText")
+    {
+        if (info.selectionText)
+        {
+            let text = info.selectionText;
+            chrome.storage.local.set ({ savedText: text }, () => {
+                console.log ('Text saved:', text);
+            });
+            executeExtension(tab);
+        }
+    }
+    else if (info.menuItemId === "saveURL")
+    {
+        executeExtension(tab);
+    }
+});
+
 chrome.storage.onChanged.addListener((changes, area) => {
     urls = Object.keys(changes.documents.newValue);
     updateBadge();
 })
 
 chrome.action.onClicked.addListener((tab) => {
+    executeExtension(tab);
+});
+
+function executeExtension(tab)
+{
     chrome.scripting.executeScript({
         target: {tabId: tab.id},
         files: ['scripts/content.js'],
     });
     updateBadge();
     console.log(urls);
-});
+}
 
 
 function getTabBadgeAndColor(url) { 
