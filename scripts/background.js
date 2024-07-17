@@ -23,9 +23,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
-    urls = Object.keys(changes.documents.newValue);
-    updateContextMenu();
-    updateBadge();
+    if (changes.documents) {
+        urls = Object.keys(changes.documents.newValue);
+        updateContextMenu();
+        updateBadge();
+    }
 })
 
 chrome.action.onClicked.addListener((tab) => {
