@@ -1,7 +1,21 @@
-let urls = []
+let savedUrls = []
 
 chrome.runtime.onInstalled.addListener(() => {
     updateContextMenu();
+});
+
+chrome.tabs.onActivated.addListener(() => {
+    updateContextMenu();
+    updateBadge();
+});
+
+chrome.tabs.onUpdated.addListener(() => {
+    updateContextMenu();
+    updateBadge();
+});
+
+chrome.action.onClicked.addListener((tab) => {
+    executeExtension(tab);
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -24,15 +38,24 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.storage.onChanged.addListener((changes, area) => {
     if (changes.documents) {
-        urls = Object.keys(changes.documents.newValue);
+        savedUrls = Object.keys(changes.documents.newValue);
         updateContextMenu();
         updateBadge();
     }
 })
 
-chrome.action.onClicked.addListener((tab) => {
-    executeExtension(tab);
-});
+
+function executeExtension(tab)
+{
+    chrome.scripting.executeScript({
+        target: {tabId: tab.id},
+        files: ['scripts/content.js'],
+    });
+    updateContextMenu();
+    updateBadge();
+    console.log(savedUrls);
+}
+
 
 function updateContextMenu() 
 {
@@ -48,7 +71,7 @@ function updateContextMenu()
                 {
                     return;
                 }
-                else if (urls.includes(url))
+                else if (savedUrls.includes(url))
                 {
                     chrome.contextMenus.create({
                         id: "removeURL",
@@ -75,22 +98,12 @@ function updateContextMenu()
     );
 }
 
-function executeExtension(tab)
-{
-    chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['scripts/content.js'],
-    });
-    updateContextMenu();
-    updateBadge();
-    console.log(urls);
-}
 
 
 function getTabBadgeAndColor(url) { 
     if (/^https:\/\/www\.google\.com\/search.*/.test(url)){
         return ["?", "white"]; 
-    } else if (urls.includes(url)) {
+    } else if (savedUrls.includes(url)) {
         return ["✓", "green"]; 
     } else {
         return ["-", "gray"];
@@ -122,17 +135,3 @@ function updateBadge() {
         }
     )
 }
-
-chrome.tabs.onActivated.addListener(() => {
-    updateContextMenu();
-    updateBadge();
-});
-
-chrome.tabs.onUpdated.addListener(() => {
-    updateContextMenu();
-    updateBadge();
-});
-// chrome.action.setBadgeBackgroundColor({ color: '#00FF00' });
-// chrome.action.setBadgeText({'text':"hi"});
-// let storage = chrome.storage.local.get(["documents"]);
-// console.log(storage)
