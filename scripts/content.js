@@ -20,6 +20,25 @@ async function updateTfIdf(text, url)
     }
     words = words.concat(bigrams);
 
+    // Expand words with synonyms
+    let expandedWords = [];
+    for (let word of words) 
+    {
+        expandedWords.push(word);
+        let synonyms = await getSynonyms(word.toLowerCase());
+        expandedWords = expandedWords.concat(synonyms);
+    }
+
+    expandedWords.forEach(function(tmp) 
+    {
+        let str = tmp.toLowerCase();
+        if (counts[str]) {
+            counts[str]++;
+        } else {
+            counts[str] = 1;
+        }
+    });
+
     words.forEach(function(tmp) {
         let str = tmp.toLowerCase();
         if (counts[str]) {
@@ -80,7 +99,8 @@ async function updateTfIdf(text, url)
         storage.documents[url]["st"] = null;
     }
 
-    let wordCount = words.length;
+    //let wordCount = words.length;
+    let wordCount = expandedWords.length;
     storage.documents[url]["tf"] = {};
     for (let str in counts){
         storage.documents[url]["tf"][str] = counts[str] / wordCount;
