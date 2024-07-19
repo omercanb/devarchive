@@ -1,4 +1,11 @@
 // WARNING: save_document.js has the exact same updateTfIdf copy and pasted. Make sure they are the same always.
+
+async function getSynonyms(word) {
+    const response = await fetch(`https://api.datamuse.com/words?ml=${word}`);
+    const data = await response.json();
+    return data.map(item => item.word);
+}
+
 async function updateTfIdf(text, url) 
 {
     let storage = await chrome.storage.local.get(["documents", "corpusOccurances"]);
