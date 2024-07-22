@@ -1,10 +1,10 @@
 // WARNING: save_document.js has the exact same updateTfIdf copy and pasted. Make sure they are the same always.
 
-async function getSynonyms(word) {
-    const response = await fetch(`https://api.datamuse.com/words?ml=${word}`);
-    const data = await response.json();
-    return data.map(item => item.word);
-}
+//async function getSynonyms(word) {
+//    const response = await fetch(`https://api.datamuse.com/words?ml=${word}`);
+//    const data = await response.json();
+//    return data.map(item => item.word);
+//}
 
 async function updateTfIdf(text, url) 
 {
@@ -28,15 +28,15 @@ async function updateTfIdf(text, url)
     words = words.concat(bigrams);
 
     // Expand words with synonyms
-    let expandedWords = [];
+/*    let expandedWords = [];
     for (let word of words) 
     {
         expandedWords.push(word);
         let synonyms = await getSynonyms(word.toLowerCase());
         expandedWords = expandedWords.concat(synonyms);
     }
-
-    expandedWords.forEach(function(tmp) 
+*/
+    words.forEach(function(tmp) 
     {
         let str = tmp.toLowerCase();
         if (counts[str]) {
@@ -107,7 +107,7 @@ async function updateTfIdf(text, url)
     }
 
     //let wordCount = words.length;
-    let wordCount = expandedWords.length;
+    let wordCount = words.length;
     storage.documents[url]["tf"] = {};
     for (let str in counts){
         storage.documents[url]["tf"][str] = counts[str] / wordCount;
