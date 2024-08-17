@@ -31,12 +31,6 @@
       "matches": [
         "https://www.google.com/search*"
       ]
-    },
-    {
-      "js": ["scripts/highlight.js"],
-      "matches": ["<all_urls>"],
-      "run_at": "document_end",
-      "exclude_matches": ["https://www.google.com/search*"]
     }
   ]
 }
