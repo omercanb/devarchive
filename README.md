@@ -7,7 +7,7 @@ Go to [chrome://extensions/](chrome://extensions/) \
 Turn on developer mode \
 Click load unpacked \
 Select the devarchive folder on your device \
-Pin the extension and start using it! \
+Pin the extension and start using it!
 
 ## Project Members
 @ardabarinhatipoglu \
