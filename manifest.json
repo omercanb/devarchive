@@ -22,7 +22,7 @@
     "service_worker": "scripts/background.js"
   },
   "action": {
-    "default_title": "Click to show an alert"
+    "default_title": "Click to save page"
   },
   "content_scripts": [
     {
