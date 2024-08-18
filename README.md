@@ -1,7 +1,16 @@
-# devHelperExtension
-This Chrome extension for the Amazon Mentorship Program helps developers who frequently search for the same coding problems. It identifies recurring issues, suggests previously looked answers to the questions.
+### devArchive
+DevArchive is a Chrome extension that saves users from repeatedly hunting down the same solutions online. When a useful solution is found, the user will be able to save it with one click. Later if you search for the same problem, DevArchive will bring up the previously saved solution and provide you with the text you’ve highlighted. We believe our product will benefit frequent search engine users like coders and researchers by preventing the loss of useful websites and saving the time spent finding it.
 
-Getting Up to Speed for developers
-Chrome Extensions tutorial https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world
+## Usage
+Go to chrome://extensions/
+Turn on developer mode
+Click load unpacked
+Select the devarchive folder
+Pin the extension and start using it!
 
-Chrome Storage tutorial https://developer.chrome.com/docs/extensions/reference/api/storage
+## Project Members
+@ardabarinhatipoglu
+@ardayukk
+@joonullus
+@omercanb
+@sanokn
